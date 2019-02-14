@@ -1,0 +1,12 @@
+PS4 is a collection of multiple nodes from different packages. Instead of uploading all relevant pakages, this
+folder simpy gather together the relevant cpp files, thus is not a ros pakage with cmakelist.txt and pakage.xml files.
+
+Below is the launch sequence of PS4:
+roslaunch gazebo_ros empty_world.launch
+roslaunch mobot_urdf mobot_w_lidar.launch
+rosrun mobot_pub_des_state open_loop_controller
+rosrun my_lidar_alarm mobot_lidar_alarm
+rosrun mobot_pub_des_state mobot_pub_des_state
+rosrun mobot_pub_des_state pub_des_state_path_client
+
+

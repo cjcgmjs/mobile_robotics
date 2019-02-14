@@ -5,6 +5,7 @@
 #include <std_msgs/Float32.h> //Including the Float32 class from std_msgs
 #include <std_msgs/Bool.h> // boolean message 
 #include <math.h>
+#include <std_srvs/Trigger.h>
 
 #define PI 3.14159265
 
@@ -63,6 +64,9 @@ bool laser_alarm_=false;
 
 ros::Publisher lidar_alarm_publisher_;
 ros::Publisher lidar_dist_publisher_;
+ros::ServiceClient client1_;
+ros::ServiceClient client2_;
+std_srvs::Trigger srv;
 // really, do NOT want to depend on a single ping.  Should consider a subset of pings
 // to improve reliability and avoid false alarms or failure to see an obstacle
 
@@ -136,9 +140,11 @@ void laserCallback(const sensor_msgs::LaserScan& laser_scan) {
            ) {
        ROS_WARN("DANGER, WILL ROBINSON!!");
        laser_alarm_=true;
+       client1_.call(srv);
    }
    else {
        laser_alarm_=false;
+       client2_.call(srv);
    }
    std_msgs::Bool lidar_alarm_msg;
    lidar_alarm_msg.data = laser_alarm_;
@@ -151,6 +157,10 @@ void laserCallback(const sensor_msgs::LaserScan& laser_scan) {
 int main(int argc, char **argv) {
     ros::init(argc, argv, "lidar_alarm"); //name this node
     ros::NodeHandle nh; 
+    ros::ServiceClient client = nh.serviceClient<std_srvs::Trigger>("estop_service");  
+    client1_ = client;
+    ros::ServiceClient client2 = nh.serviceClient<std_srvs::Trigger>("clear_estop_service"); 
+    client2_ = client2;
     //create a Subscriber object and have it subscribe to the lidar topic
     ros::Publisher pub = nh.advertise<std_msgs::Bool>("lidar_alarm", 1);
     lidar_alarm_publisher_ = pub; // let's make this global, so callback can use it
